@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Lince - Agilidade Visual</title>
+<style>
+  :root{
+    --bg1:#020617;
+    --bg2:#1e1b4b;
+    --card:#0f172acc;
+    --accent:#8b5cf6;
+    --good:#22c55e;
+    --bad:#ef4444;
+    --text:#e2e8f0;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{height:100%; margin:0}
+  body{
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, "Helvetica Neue", Arial;
+    background: radial-gradient(1200px 800px at 70% -10%, #312e81 0%, transparent 60%), 
+                radial-gradient(900px 600px at -10% 20%, #0d9488 0%, transparent 50%),
+                linear-gradient(180deg, var(--bg1), var(--bg2));
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    overflow-x:hidden;
+  }
+  .app{
+    width:100%;
+    max-width:980px;
+    padding:14px 14px 28px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .logo{
+    font-weight:900;
+    font-size:24px;
+    letter-spacing:.5px;
+    line-height:1;
+    background:linear-gradient(90deg,#fff,#c7d2fe);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .logo span{
+    display:block;
+    font-size:11px;
+    font-weight:600;
+    letter-spacing:1.5px;
+    opacity:.7;
+    margin-top:2px;
+  }
+  .stats{
+    display:flex;
+    gap:8px;
+  }
+  .stat{
+    background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.08);
+    padding:8px 14px;
+    border-radius:12px;
+    text-align:center;
+    min-width:78px;
+    backdrop-filter: blur(8px);
+  }
+  .stat strong{
+    display:block;
+    font-size:20px;
+    font-variant-numeric:tabular-nums;
+  }
+  .stat label{
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.8px;
+    opacity:.7;
+  }
+
+  .game-header{
+    display:grid;
+    grid-template-columns:1fr auto auto;
+    gap:10px;
+    align-items:center;
+    background:var(--card);
+    border:1px solid rgba(255,255,255,.08);
+    padding:10px;
+    border-radius:18px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+  }
+  .target-box{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+  }
+  .target-emoji{
+    width:64px;
+    height:64px;
+    display:grid;
+    place-items:center;
+    font-size:40px;
+    background:linear-gradient(135deg,#fde047,#f97316);
+    border-radius:16px;
+    box-shadow:0 8px 24px rgba(249,115,22,.35), inset 0 2px 0 rgba(255,255,255,.4);
+    color:#111;
+    flex-shrink:0;
+    user-select:none;
+  }
+  .target-emoji.pop{animation:pop .28s ease}
+  @keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
+  .target-label{
+    font-weight:800;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+    opacity:.9;
+    line-height:1.2;
+  }
+  .target-label small{
+    display:block;
+    font-weight:600;
+    text-transform:none;
+    opacity:.7;
+    font-size:12px;
+    letter-spacing:0;
+  }
+
+  .timer-wrap{
+    position:relative;
+    width:68px;
+    height:68px;
+    display:grid;
+    place-items:center;
+  }
+  .timer-wrap svg{position:absolute; inset:0; transform:rotate(-90deg)}
+  #time{
+    font-weight:900;
+    font-size:20px;
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 2px 8px rgba(0,0,0,.5);
+  }
+
+  #startBtn{
+    background:linear-gradient(135deg,#22c55e,#16a34a);
+    color:#052e13;
+    border:none;
+    padding:12px 18px;
+    border-radius:12px;
+    font-weight:900;
+    font-size:15px;
+    cursor:pointer;
+    box-shadow:0 8px 20px rgba(34,197,94,.35);
+    transition:transform .08s ease, filter .2s;
+  }
+  #startBtn:active{transform:scale(.96)}
+  #startBtn[disabled]{opacity:.5; filter:grayscale(.3)}
+
+  .board-container{
+    position:relative;
+    background:rgba(0,0,0,.35);
+    border:1px solid rgba(255,255,255,.08);
+    border-radius:22px;
+    overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.05);
+    touch-action:none;
+  }
+  canvas{
+    display:block;
+    width:100%;
+    height:62vh;
+    min-height:400px;
+    max-height:640px;
+    cursor:crosshair;
+    user-select:none;
+  }
+
+  .overlay{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:24px;
+    background:radial-gradient(600px 400px at 50% 0%, rgba(99,102,241,.25), transparent 60%), rgba(2,6,23,.88);
+    backdrop-filter: blur(14px);
+    transition:opacity .3s ease, visibility .3s;
+  }
+  .overlay.hidden{opacity:0; visibility:hidden; pointer-events:none}
+  .overlay h2{
+    font-size:34px;
+    margin:0 0 8px;
+    font-weight:900;
+    background:linear-gradient(90deg,#fff,#a5b4fc 60%,#f0abfc);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .overlay p{
+    margin:6px 0;
+    opacity:.9;
+    max-width:440px;
+    line-height:1.45;
+    font-size:15px;
+  }
+  .overlay .big{
+    font-size:52px;
+    font-weight:900;
+    margin:10px 0;
+    text-shadow:0 6px 24px rgba(139,92,246,.5);
+  }
+  .overlay button{
+    margin-top:16px;
+    background:linear-gradient(135deg,#6366f1,#8b5cf6);
+    border:none;
+    color:white;
+    padding:14px 28px;
+    border-radius:14px;
+    font-weight:900;
+    font-size:18px;
+    cursor:pointer;
+    box-shadow:0 12px 30px rgba(99,102,241,.45);
+    transition:transform .08s;
+  }
+  .overlay button:active{transform:translateY(1px) scale(.98)}
+
+  .flash{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .12s ease;
+  }
+  .flash.red{background:radial-gradient(circle at center, rgba(239,68,68,.45), rgba(239,68,68,.15) 60%, transparent 80%)}
+  .flash.green{background:radial-gradient(circle at center, rgba(34,197,94,.45), rgba(34,197,94,.15) 60%, transparent 80%)}
+  .flash.show{opacity:1}
+
+  footer{
+    text-align:center;
+    opacity:.6;
+    font-size:12px;
+    margin-top:4px;
+  }
+
+  @media (max-width:640px){
+    .app{padding:10px 10px 24px; gap:10px}
+    .logo{font-size:20px}
+    .game-header{
+      grid-template-columns:1fr auto;
+      padding:10px;
+    }
+    #startBtn{
+      grid-column:1 / -1;
+      width:100%;
+      padding:12px;
+    }
+    .target-emoji{width:56px;height:56px;font-size:34px;border-radius:14px}
+    .timer-wrap{width:60px;height:60px}
+    #time{font-size:18px}
+    canvas{height:58vh; min-height:360px}
+    .overlay h2{font-size:28px}
+    .overlay p{font-size:14px}
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">LINCE ⚡<span>AGILIDADE VISUAL</span></div>
+      <div class="stats">
+        <div class="stat"><strong id="score">0</strong><label>Pontos</label></div>
+        <div class="stat"><strong id="best">0</strong><label>Recorde</label></div>
+        <button id="settingsBtn" title="Tamanho" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;padding:8px 12px;border-radius:12px;font-weight:700;cursor:pointer">Aa</button>
+      </div>
+    </header>
+
+    <div class="game-header">
+      <div class="target-box">
+        <div class="target-emoji" id="target">🐶</div>
+        <div class="target-label">ENCONTRE ESTE!<small>Encontre o mais rápido!</small></div>
+      </div>
+      <div class="timer-wrap">
+        <svg width="68" height="68" viewBox="0 0 70 70">
+          <circle cx="35" cy="35" r="30" stroke="rgba(255,255,255,.12)" stroke-width="6" fill="none"/>
+          <circle id="ring" cx="35" cy="35" r="30" stroke="#22d3ee" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="0"/>
+        </svg>
+        <div id="time">30.0</div>
+      </div>
+      <button id="startBtn" aria-label="Iniciar jogo">Jogar</button>
+    </div>
+
+    <div class="board-container" id="board">
+      <canvas id="game" width="800" height="600"></canvas>
+      <div class="flash" id="flash"></div>
+      <div class="overlay" id="overlay">
+        <h2>Lince - Agilidade Visual</h2>
+        <p><strong>Encontre o mais rápido!</strong></p>
+        <p>Você tem <strong>30 segundos</strong> para achar o emoji alvo no meio de 200 figuras embaralhadas.</p>
+        <p style="opacity:.8">Acerto = +1 ponto e novo tabuleiro<br>Erro = tela pisca vermelho e <strong>-1 segundo</strong></p>
+        <button id="play">Começar</button>
+      </div>
+    </div>
+    <footer>Dica: procure pela cor e formato primeiro. Toque ou clique para selecionar.</footer>
+  </div>
+
+<script>
+(() => {
+  const EMOJIS = ['🐶','🐱','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🐤','🦆','🦉','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🍎','🍌','🍇','🍓','🍒','🍑','🥝'];
+  
+  const canvas = document.getElementById('game');
+  const ctx = canvas.getContext('2d', { alpha: true });
+  const targetEl = document.getElementById('target');
+  const timeEl = document.getElementById('time');
+  const scoreEl = document.getElementById('score');
+  const bestEl = document.getElementById('best');
+  const overlay = document.getElementById('overlay');
+  const playBtn = document.getElementById('play');
+  const startBtn = document.getElementById('startBtn');
+  const flashEl = document.getElementById('flash');
+  const ring = document.getElementById('ring');
+
+  let score = 0;
+  let best = parseInt(localStorage.getItem('linceBest') || '0', 10) || 0;
+  bestEl.textContent = best;
+
+  let running = false;
+  let board = [];
+  let target = '🐶';
+  let penalty = 0;
+  let startTime = 0;
+  let rafId = null;
+  let timeLeft = 30;
+  const TOTAL_TIME = 30;
+  let COLS = 14;
+  let ROWS = 8;
+  let TOTAL_ITEMS = COLS * ROWS;
+  let sizeMult = 1.15;
+  const SIZE_PRESETS = [
+    {name:'Muito Pequeno', cols:20, rows:12, mult:0.75},
+    {name:'Pequeno', cols:18, rows:10, mult:0.9},
+    {name:'Normal', cols:14, rows:8, mult:1.15},
+    {name:'Criança', cols:10, rows:6, mult:1.5},
+    {name:'Idoso', cols:7, rows:5, mult:1.9}
+  ];
+  let sizeLevel = parseInt(localStorage.getItem('linceSize')||'2',10);
+  function applySize(level){
+    sizeLevel = level;
+    const p = SIZE_PRESETS[level];
+    COLS = p.cols; ROWS = p.rows; TOTAL_ITEMS = COLS*ROWS; sizeMult = p.mult;
+    localStorage.setItem('linceSize', String(level));
+    document.getElementById('sizeLabel').textContent = p.name;
+    if(board.length) generateBoard();
+  }
+
+  function resizeCanvas(){
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const cssW = Math.floor(rect.width);
+    const cssH = Math.floor(canvas.clientHeight);
+    const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+    canvas.width = cssW * dpr;
+    canvas.height = cssH * dpr;
+    canvas.style.width = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.scale(dpr, dpr);
+    if(board.length) drawBoard();
+  }
+
+  function drawBoard(){
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    ctx.save();
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.restore();
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const cellW = w / COLS;
+    const cellH = h / ROWS;
+    const size = Math.min(cellW, cellH) * sizeMult;
+    ctx.font = `${Math.floor(size)}px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji", system-ui`;
+
+    // leve sombra para legibilidade
+    ctx.shadowColor = 'rgba(0,0,0,.35)';
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetY = 2;
+
+    for(const it of board){
+      ctx.globalAlpha = 0.98;
+      ctx.fillText(it.emoji, it.x, it.y);
+    }
+    ctx.shadowColor = 'transparent';
+  }
+
+  function generateBoard(){
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    const cellW = w / COLS;
+    const cellH = h / ROWS;
+
+    target = EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+    targetEl.textContent = target;
+    targetEl.classList.remove('pop'); void targetEl.offsetWidth; targetEl.classList.add('pop');
+
+    const targetCount = 3 + Math.floor(Math.random()*3); // 3-5 alvos
+    const list = [];
+    for(let i=0;i<targetCount;i++) list.push(target);
+    while(list.length < TOTAL_ITEMS){
+      const e = EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
+      if(e !== target) list.push(e);
+    }
+    // shuffle
+    for(let i=list.length-1;i>0;i--){
+      const j = Math.floor(Math.random()*(i+1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+
+    board = new Array(TOTAL_ITEMS);
+    for(let i=0;i<TOTAL_ITEMS;i++){
+      const col = i % COLS;
+      const row = Math.floor(i / COLS);
+      const jitterX = (Math.random()-0.5) * cellW * 0.55;
+      const jitterY = (Math.random()-0.5) * cellH * 0.55;
+      const x = col * cellW + cellW*0.5 + jitterX;
+      const y = row * cellH + cellH*0.5 + jitterY;
+      board[i] = { x, y, emoji: list[i] };
+    }
+    drawBoard();
+  }
+
+  function flash(type){
+    flashEl.className = 'flash ' + type + ' show';
+    setTimeout(()=> flashEl.classList.remove('show'), 140);
+  }
+
+  function pickAt(clientX, clientY){
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    const cellW = canvas.clientWidth / COLS;
+    const cellH = canvas.clientHeight / ROWS;
+    const radius = Math.min(cellW, cellH) * 0.45;
+
+    // busca rápida no grid aproximado
+    const col = Math.max(0, Math.min(COLS-1, Math.floor(x / cellW)));
+    const row = Math.max(0, Math.min(ROWS-1, Math.floor(y / cellH)));
+    const candidates = [];
+    for(let dr=-1; dr<=1; dr++){
+      for(let dc=-1; dc<=1; dc++){
+        const c = col+dc, r=row+dr;
+        if(c<0||c>=COLS||r<0||r>=ROWS) continue;
+        candidates.push(board[r*COLS + c]);
+      }
+    }
+    let bestHit=null, bestD=Infinity;
+    for(const it of candidates){
+      const d = Math.hypot(it.x - x, it.y - y);
+      if(d < radius && d < bestD){ bestD = d; bestHit = it; }
+    }
+    return bestHit;
+  }
+
+  function handleSelect(clientX, clientY){
+    if(!running) return;
+    const hit = pickAt(clientX, clientY);
+    if(!hit) return;
+    if(hit.emoji === target){
+      score++;
+      scoreEl.textContent = score;
+      flash('green');
+      if(navigator.vibrate) navigator.vibrate(10);
+      generateBoard();
+    }else{
+      flash('red');
+      penalty += 1; // perde 1s
+      timeLeft = Math.max(0, TOTAL_TIME - (performance.now()-startTime)/1000 - penalty);
+      if(navigator.vibrate) navigator.vibrate([20,30,20]);
+      // pequeno "shake" no alvo errado
+      canvas.style.transform = 'translateX(1px)';
+      setTimeout(()=> canvas.style.transform='', 60);
+    }
+  }
+
+  function updateTimer(now){
+    if(!running) return;
+    const elapsed = (now - startTime)/1000;
+    timeLeft = Math.max(0, TOTAL_TIME - elapsed - penalty);
+    timeEl.textContent = timeLeft.toFixed(1);
+
+    const pct = timeLeft / TOTAL_TIME;
+    const dash = 2*Math.PI*30;
+    ring.style.strokeDashoffset = dash * (1 - pct);
+    ring.style.stroke = timeLeft < 8 ? '#ef4444' : timeLeft < 16 ? '#f59e0b' : '#22d3ee';
+
+    if(timeLeft <= 0){
+      endGame();
+      return;
+    }
+    rafId = requestAnimationFrame(updateTimer);
+  }
+
+  function startGame(){
+    score = 0;
+    penalty = 0;
+    scoreEl.textContent = '0';
+    running = true;
+    overlay.classList.add('hidden');
+    startBtn.disabled = true;
+    startBtn.textContent = 'Jogando...';
+    resizeCanvas();
+    generateBoard();
+    startTime = performance.now();
+    cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(updateTimer);
+  }
+
+  function endGame(){
+    running = false;
+    cancelAnimationFrame(rafId);
+    startBtn.disabled = false;
+    startBtn.textContent = 'Jogar';
+
+    if(score > best){
+      best = score;
+      localStorage.setItem('linceBest', String(best));
+      bestEl.textContent = best;
+    }
+    overlay.innerHTML = `
+      <h2>Fim de Jogo!</h2>
+      <div class="big">${score} pontos</div>
+      <p>Recorde: <strong>${best}</strong></p>
+      <p>Encontre o mais rápido!</p>
+      <button id="play2">Jogar Novamente</button>
+    `;
+    overlay.classList.remove('hidden');
+    document.getElementById('play2').addEventListener('click', startGame, {once:true});
+  }
+
+  // Eventos
+  playBtn.addEventListener('click', startGame);
+  startBtn.addEventListener('click', startGame);
+
+  canvas.addEventListener('click', (e)=> {
+    handleSelect(e.clientX, e.clientY);
+  });
+  canvas.addEventListener('touchstart', (e)=>{
+    if(e.touches[0]){
+      e.preventDefault();
+      handleSelect(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  }, {passive:false});
+
+  window.addEventListener('resize', resizeCanvas);
+  window.addEventListener('orientationchange', ()=> setTimeout(resizeCanvas, 200));
+
+  // Configurações de tamanho
+  const settingsBtn = document.getElementById('settingsBtn');
+  const settingsEl = document.getElementById('settings');
+  const sizeSlider = document.getElementById('sizeSlider');
+  const closeSettings = document.getElementById('closeSettings');
+  sizeSlider.value = sizeLevel;
+  applySize(sizeLevel);
+  settingsBtn.addEventListener('click', ()=> settingsEl.classList.remove('hidden'));
+  closeSettings.addEventListener('click', ()=> settingsEl.classList.add('hidden'));
+  sizeSlider.addEventListener('input', (e)=> applySize(parseInt(e.target.value,10)));
+
+  // inicialização
+  resizeCanvas();
+  // pré-renderiza um tabuleiro de demonstração (parado)
+  target = EMOJIS[0];
+  targetEl.textContent = target;
+  (() => {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    const cellW = w/COLS, cellH = h/ROWS;
+    board = [];
+    for(let i=0;i<TOTAL_ITEMS;i++){
+      const col=i%COLS, row=Math.floor(i/COLS);
+      board.push({x:col*cellW+cellW/2, y:row*cellH+cellH/2, emoji: EMOJIS[i%EMOJIS.length]});
+    }
+    drawBoard();
+  })();
+
+})();
+</script>
+<script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
+
+  <div class="overlay hidden" id="settings" style="z-index:50">
+    <div style="background:#0f172a;border:1px solid rgba(255,255,255,.12);padding:24px;border-radius:20px;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.6)">
+      <h2 style="margin:0 0 12px;font-size:24px">Configurações de imagem</h2>
+      <div style="display:flex;align-items:center;gap:12px;margin:20px 0">
+        <span style="font-size:14px">A</span>
+        <input id="sizeSlider" type="range" min="0" max="4" value="2" style="flex:1">
+        <span style="font-size:24px">A</span>
+      </div>
+      <div id="sizeLabel" style="text-align:center;opacity:.8;margin-bottom:16px">Normal</div>
+      <button id="closeSettings" style="width:100%;background:linear-gradient(135deg,#6366f1,#8b5cf6);border:none;color:white;padding:12px;border-radius:12px;font-weight:800;cursor:pointer">FECHAR</button>
+    </div>
+  </div>
+
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;var a=target.closest?target.closest("a[href]"):null;if(!a||!a.href||!/^https?:\/\//.test(a.href))return;if(a.href.replace(/#.*$/,"")===loc)return;var productId=extractProductId(target)||extractProductId(a);if(!productId)return;e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*")},true)})();</script></body>
+</html>
